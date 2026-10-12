@@ -115,6 +115,9 @@ game:GetService("UserInputService").InputChanged:Connect(function(i)
         sB.Position = UDim2.new(p, 0, 0.5, -8)
         d.V = math.floor(p * 300)
         sL.Text = "VELOCIDAD: " .. tostring(d.V)
+        if d.S and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then
+            LP.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = d.V
+        end
     elseif d.sAct2 and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
         local p = math.clamp((i.Position.X - sT2.AbsolutePosition.X) / sT2.AbsoluteSize.X, 0, 1)
         sB2.Position = UDim2.new(p, 0, 0.5, -8)
@@ -225,12 +228,15 @@ bS.MouseButton1Click:Connect(function()
     d.S = not d.S
     bS.Text = d.S and "SPD ON" or "SPD OFF"
     bS.BackgroundColor3 = d.S and Color3.fromRGB(40, 120, 40) or Color3.fromRGB(25, 25, 25)
+    if LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then
+        LP.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = d.S and d.V or 16
+    end
 end)
 
 R.RenderStepped:Connect(function()
     if LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then
         local hum = LP.Character:FindFirstChildOfClass("Humanoid")
-        hum.WalkSpeed = d.S and d.V or 16
+        if d.S and hum.WalkSpeed ~= d.V then hum.WalkSpeed = d.V end
         if d.N then
             for _, p in ipairs(LP.Character:GetDescendants()) do
                 if p:IsA("BasePart") and p.CanCollide then p.CanCollide = false end
