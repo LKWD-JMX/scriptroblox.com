@@ -1,16 +1,18 @@
 local P, R = game:GetService("Players"), game:GetService("RunService")
 local LP, C = P.LocalPlayer, workspace.CurrentCamera
 
-shared.MenuData = {
-    A = false, AW = false, ASH = false, E = false, EL = false, S = false, N = false, Inv = false,
-    Prt = "Head", SM = 0.25, FOV = 130, V = 100, LW = 2,
-    isS = false, min = false, sAct = false, sAct2 = false
-}
-local d = shared.MenuData
+if not _G.MenuShared then
+    _G.MenuShared = {
+        A = false, AW = false, ASH = false, E = false, EL = false, S = false, N = false, Inv = false,
+        Prt = "Head", SM = 0.25, FOV = 130, V = 100, LW = 2,
+        isS = false, min = false, sAct = false, sAct2 = false
+    }
+end
+local d = _G.MenuShared
 
 local g = Instance.new("ScreenGui", LP:WaitForChild("PlayerGui"))
 g.ResetOnSpawn = false
-shared.MenuGui = g
+_G.MenuGui = g
 
 local F = Instance.new("Frame", g)
 F.Size, F.Position = UDim2.new(0, 160, 0, 240), UDim2.new(1, -180, 0.25, 0)
@@ -90,17 +92,17 @@ local function cSl(t, o, pD, fU)
     return tr, btn, l
 end
 
-shared.bA = cB("AIM VISIBLE OFF", 1)
-shared.bW = cB("AIM WALLS OFF", 2)
-shared.bSH = cB("AIM SHOOT OFF", 3)
-shared.bP = cB("HEAD", 4)
-shared.bE = cB("ESP OFF", 5)
-shared.bEL = cB("ESP LINE OFF", 6)
+_G.bA = cB("AIM VISIBLE OFF", 1)
+_G.bW = cB("AIM WALLS OFF", 2)
+_G.bSH = cB("AIM SHOOT OFF", 3)
+_G.bP = cB("HEAD", 4)
+_G.bE = cB("ESP OFF", 5)
+_G.bEL = cB("ESP LINE OFF", 6)
 
 local sT2, sB2, sL2 = cSl("GROSOR LINEA: 2", 7, 0.11, function(v) d.sAct2 = v end)
-shared.bN = cB("NOCLIP OFF", 8)
-shared.bInv = cB("INVISIBILIDAD OFF", 9)
-shared.bS = cB("SPD OFF", 10)
+_G.bN = cB("NOCLIP OFF", 8)
+_G.bInv = cB("INVISIBILIDAD OFF", 9)
+_G.bS = cB("SPD OFF", 10)
 local sT, sB, sL = cSl("VELOCIDAD: 100", 11, 0.33, function(v) d.sAct = v end)
 
 game:GetService("UserInputService").InputEnded:Connect(function(i)
@@ -115,9 +117,6 @@ game:GetService("UserInputService").InputChanged:Connect(function(i)
         sB.Position = UDim2.new(p, 0, 0.5, -8)
         d.V = math.floor(p * 300)
         sL.Text = "VELOCIDAD: " .. tostring(d.V)
-        if d.S and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then
-            LP.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = d.V
-        end
     elseif d.sAct2 and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
         local p = math.clamp((i.Position.X - sT2.AbsolutePosition.X) / sT2.AbsoluteSize.X, 0, 1)
         sB2.Position = UDim2.new(p, 0, 0.5, -8)
@@ -130,9 +129,9 @@ game:GetService("UserInputService").InputBegan:Connect(function(i, gP)
     if not gP and (i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch) then d.isS = true end
 end)local P, R = game:GetService("Players"), game:GetService("RunService")
 local LP, C = P.LocalPlayer, workspace.CurrentCamera
-local d = shared.MenuData
-local g = shared.MenuGui
-local bA, bW, bSH, bP, bE, bEL, bN, bInv, bS = shared.bA, shared.bW, shared.bSH, shared.bP, shared.bE, shared.bEL, shared.bN, shared.bInv, shared.bS
+local d = _G.MenuShared
+local g = _G.MenuGui
+local bA, bW, bSH, bP, bE, bEL, bN, bInv, bS = _G.bA, _G.bW, _G.bSH, _G.bP, _G.bE, _G.bEL, _G.bN, _G.bInv, _G.bS
 
 local function IsV(t)
     if not LP.Character then return false end
@@ -228,15 +227,16 @@ bS.MouseButton1Click:Connect(function()
     d.S = not d.S
     bS.Text = d.S and "SPD ON" or "SPD OFF"
     bS.BackgroundColor3 = d.S and Color3.fromRGB(40, 120, 40) or Color3.fromRGB(25, 25, 25)
-    if LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then
-        LP.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = d.S and d.V or 16
-    end
 end)
 
 R.RenderStepped:Connect(function()
     if LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then
         local hum = LP.Character:FindFirstChildOfClass("Humanoid")
-        if d.S and hum.WalkSpeed ~= d.V then hum.WalkSpeed = d.V end
+        if d.S then
+            hum.WalkSpeed = d.V
+        else
+            hum.WalkSpeed = 16
+        end
         if d.N then
             for _, p in ipairs(LP.Character:GetDescendants()) do
                 if p:IsA("BasePart") and p.CanCollide then p.CanCollide = false end
